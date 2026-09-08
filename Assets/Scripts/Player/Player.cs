@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerKick playerKick;
 
     private PlayerInputActions playerInputActions;
+    private bool arePlayerControlsEnabled = true;
 
     public void InitializePlayer(SoccerField soccerField)
     {
@@ -31,12 +32,37 @@ public class Player : MonoBehaviour
 
     public void RequestKick()
     {
+        if (!arePlayerControlsEnabled)
+        {
+            return;
+        }
+
         playerKick.Kick();
     }
 
     public void RequestAutoKick()
     {
+        if (!arePlayerControlsEnabled)
+        {
+            return;
+        }
+
         playerKick.AutoKick();
+    }
+
+    public void SetPlayerControlsEnabled(bool enabled)
+    {
+        arePlayerControlsEnabled = enabled;
+        if (arePlayerControlsEnabled && isActiveAndEnabled)
+        {
+            playerInputActions.Player.Enable();
+        }
+        else
+        {
+            playerInputActions.Player.Disable();
+            playerMovement.HandlePlayerMoveInput(Vector2.zero);
+            playerAnimation.HandleMovementStateChanged(false);
+        }
     }
 
     private void Awake()
@@ -50,7 +76,10 @@ public class Player : MonoBehaviour
         playerAnimation.HandleMovementStateChanged(playerMovement.IsMoving);
         playerInputActions.Player.Move.performed += HandlePlayerMoveInput;
         playerInputActions.Player.Move.canceled += HandlePlayerMoveInput;
-        playerInputActions.Player.Enable();
+        if (arePlayerControlsEnabled)
+        {
+            playerInputActions.Player.Enable();
+        }
     }
 
     private void OnDisable()

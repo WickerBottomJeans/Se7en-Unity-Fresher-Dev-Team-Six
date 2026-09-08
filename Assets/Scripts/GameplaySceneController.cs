@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,9 +7,12 @@ public class GameplaySceneController : MonoBehaviour
     [SerializeField] private Player player;
     [SerializeField] private SoccerField soccerField;
     [SerializeField] private CameraController cameraController;
+    [SerializeField] private SingleEffectPlayer singleEffectPlayer;
+    [SerializeField, Min(0f)] private float gameplayResumeDelay = 2f;
 
     private PlayerKickPresenter playerKickPresenter;
     private SoccerBall followedBall;
+    private Coroutine gameplayResumeCoroutine;
 
     #region Unity Lifecycle
 
@@ -39,7 +43,7 @@ public class GameplaySceneController : MonoBehaviour
     }
 
     #endregion
-
+    
     #region Public API
 
     public void StartGameplay()
@@ -50,15 +54,23 @@ public class GameplaySceneController : MonoBehaviour
         playerKickPresenter = new PlayerKickPresenter(player);
         player.BallKicked += HandleBallKicked;
         UIManager.Instance.ResetButtonClicked += HandleResetButtonClicked;
+        player.SetPlayerControlsEnabled(true);
     }
 
     public void EndGameplay()
     {
+        if (gameplayResumeCoroutine != null)
+        {
+            StopCoroutine(gameplayResumeCoroutine);
+            gameplayResumeCoroutine = null;
+        }
+
         if (playerKickPresenter == null)
         {
             return;
         } 
 
+        player.SetPlayerControlsEnabled(false);
         player.BallKicked -= HandleBallKicked;
         if (followedBall != null)
         {
@@ -95,6 +107,9 @@ public class GameplaySceneController : MonoBehaviour
 
     #region Private Methods
 
+    /// <summary>
+    /// [Duong] Handles a kicked ball by following it and suspending player interaction
+    /// </summary>
     private void HandleBallKicked(SoccerBall ball)
     {
         if (ball == null)
@@ -112,14 +127,40 @@ public class GameplaySceneController : MonoBehaviour
 
         followedBall = ball;
         followedBall.DestinationReached += HandleBallDestinationReached;
+        player.SetPlayerControlsEnabled(false);
         cameraController.SetFollowTarget(followedBall.transform);
+        UIManager.Instance.HideGamePlayUI();
     }
 
+    /// <summary>
+    /// [Duong] Handles the ball reaching its destination and begins the gameplay resume delay
+    /// </summary>
     private void HandleBallDestinationReached(SoccerBall ball)
     {
         ball.DestinationReached -= HandleBallDestinationReached;
         followedBall = null;
+        
+        singleEffectPlayer.PlayEffect(ball.transform.position);
+        cameraController.SetFollowTarget(null);
+        Destroy(ball.gameObject);
+        
+        gameplayResumeCoroutine = StartCoroutine(ResumeGameplayAfterDelay());
+    }
+
+    /// <summary>
+    /// [Duong] Resumes player interaction after the configured delay.
+    /// </summary>
+    private IEnumerator ResumeGameplayAfterDelay()
+    {
+        if (gameplayResumeDelay > 0f)
+        {
+            yield return new WaitForSeconds(gameplayResumeDelay);
+        }
+
+        gameplayResumeCoroutine = null;
         cameraController.SetFollowTarget(player.transform);
+        UIManager.Instance.ShowGamePlayUI();
+        player.SetPlayerControlsEnabled(true);
     }
 
     private void HandleResetButtonClicked()

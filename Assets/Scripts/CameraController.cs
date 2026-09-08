@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
 
     /// <summary>
-    /// Sets Cinemachine's follow target, or clears it when null.
+    /// [Duong] Sets Cinemachine's follow target, or clears it when null.
     /// </summary>
     public void SetFollowTarget(Transform followTarget)
     {
