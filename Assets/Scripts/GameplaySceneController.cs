@@ -5,8 +5,10 @@ public class GameplaySceneController : MonoBehaviour
 {
     [SerializeField] private Player player;
     [SerializeField] private SoccerField soccerField;
+    [SerializeField] private CameraController cameraController;
 
     private PlayerKickPresenter playerKickPresenter;
+    private SoccerBall followedBall;
 
     #region Unity Lifecycle
 
@@ -43,8 +45,10 @@ public class GameplaySceneController : MonoBehaviour
     public void StartGameplay()
     {
         EndGameplay();
+        cameraController.SetFollowTarget(player.transform);
         UIManager.Instance.ShowGamePlayUI();
         playerKickPresenter = new PlayerKickPresenter(player);
+        player.BallKicked += HandleBallKicked;
         UIManager.Instance.ResetButtonClicked += HandleResetButtonClicked;
     }
 
@@ -55,6 +59,14 @@ public class GameplaySceneController : MonoBehaviour
             return;
         } 
 
+        player.BallKicked -= HandleBallKicked;
+        if (followedBall != null)
+        {
+            followedBall.DestinationReached -= HandleBallDestinationReached;
+            followedBall = null;
+        }
+
+        cameraController.SetFollowTarget(null);
         playerKickPresenter.Dispose();
         playerKickPresenter = null;
         if (UIManager.Instance != null)
@@ -82,6 +94,33 @@ public class GameplaySceneController : MonoBehaviour
     #endregion
 
     #region Private Methods
+
+    private void HandleBallKicked(SoccerBall ball)
+    {
+        if (ball == null)
+        {
+            Debug.LogError("BallKicked event received a null SoccerBall.", this);
+            return;
+        }
+
+        //[Duong] Follow the newest ball, which shouldnt happen cuz i unenalbe kicking 
+        if (followedBall != null)
+        {
+            Debug.LogWarning("A new ball was kicked before the previous ball reached its destination.", this);
+            followedBall.DestinationReached -= HandleBallDestinationReached;
+        }
+
+        followedBall = ball;
+        followedBall.DestinationReached += HandleBallDestinationReached;
+        cameraController.SetFollowTarget(followedBall.transform);
+    }
+
+    private void HandleBallDestinationReached(SoccerBall ball)
+    {
+        ball.DestinationReached -= HandleBallDestinationReached;
+        followedBall = null;
+        cameraController.SetFollowTarget(player.transform);
+    }
 
     private void HandleResetButtonClicked()
     {

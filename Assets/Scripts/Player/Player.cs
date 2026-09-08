@@ -23,6 +23,12 @@ public class Player : MonoBehaviour
         remove => playerKick.NormalKickAvailabilityChanged -= value;
     }
 
+    public event Action<SoccerBall> BallKicked
+    {
+        add => playerKick.BallKicked += value;
+        remove => playerKick.BallKicked -= value;
+    }
+
     public void RequestKick()
     {
         playerKick.Kick();

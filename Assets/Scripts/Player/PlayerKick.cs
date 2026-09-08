@@ -36,6 +36,8 @@ public class PlayerKick : MonoBehaviour
     /// </summary>
     public event Action<bool> NormalKickAvailabilityChanged;
 
+    public event Action<SoccerBall> BallKicked;
+
     public void Kick()
     {
         if (!soccerField.TryGetNearestKickableBall(transform.position, kickRange, out SoccerBall ball))
@@ -78,6 +80,7 @@ public class PlayerKick : MonoBehaviour
         }
 
         ball.LaunchTo(nearestGoal.position);
+        BallKicked?.Invoke(ball);
         UpdateNormalKickAvailability(soccerField.TryGetNearestKickableBall(transform.position, kickRange, out _));
     }
 
