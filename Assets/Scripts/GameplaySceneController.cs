@@ -1,57 +1,54 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameplaySceneController : MonoBehaviour
 {
+    [SerializeField] private Player player;
+    [SerializeField] private SoccerField soccerField;
+
     private PlayerKickPresenter playerKickPresenter;
 
     #region Unity Lifecycle
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (player == null || soccerField == null)
         {
-            gameObject.SetActive(false);
-            Destroy(gameObject);
+            Debug.LogError("Player and SoccerField references must be assigned.", this);
             return;
         }
+        
+        player.InitializePlayer(soccerField);
+    }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+    private void Start()
+    {
+        StartGameplay();
     }
 
     private void OnApplicationQuit()
     {
-        if (Instance == this)
-        {
-            EndGame();
-        }
+        EndGameplay();
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
-        {
-            EndGame();
-            Instance = null;
-        }
+        EndGameplay();
     }
 
     #endregion
 
     #region Public API
 
-    public static GameManager Instance { get; private set; }
-
-    public void StartAGame()
+    public void StartGameplay()
     {
-        EndGame();
+        EndGameplay();
         UIManager.Instance.ShowGamePlayUI();
-        playerKickPresenter = new PlayerKickPresenter();
+        playerKickPresenter = new PlayerKickPresenter(player);
         UIManager.Instance.ResetButtonClicked += HandleResetButtonClicked;
     }
 
-    public void EndGame()
+    public void EndGameplay()
     {
         if (playerKickPresenter == null)
         {
@@ -60,8 +57,11 @@ public class GameManager : MonoBehaviour
 
         playerKickPresenter.Dispose();
         playerKickPresenter = null;
-        UIManager.Instance.ResetButtonClicked -= HandleResetButtonClicked;
-        UIManager.Instance.HideGamePlayUI();
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ResetButtonClicked -= HandleResetButtonClicked;
+            UIManager.Instance.HideGamePlayUI();
+        }
     }
     
     /// <summary>
@@ -74,8 +74,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Scene currentScene = SceneManager.GetActiveScene();
-        EndGame();
+        Scene currentScene = gameObject.scene;
+        EndGameplay();
         SceneManager.LoadScene(currentScene.path);
     }
 

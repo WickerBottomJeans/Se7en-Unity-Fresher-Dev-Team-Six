@@ -5,11 +5,13 @@ public class PlayerKick : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float kickRange = 2f;
 
+    private SoccerField soccerField;
+
     #region Unity Lifecycle
 
     private void LateUpdate()
     {
-        bool hasKickableBall = SoccerField.Instance.TryGetNearestKickableBall(transform.position, kickRange, out _);
+        bool hasKickableBall = soccerField.TryGetNearestKickableBall(transform.position, kickRange, out _);
         UpdateNormalKickAvailability(hasKickableBall);
     }
 
@@ -24,6 +26,11 @@ public class PlayerKick : MonoBehaviour
 
     public bool CanKick { get; private set; }
 
+    public void InitializePlayerKick(SoccerField soccerField)
+    {
+        this.soccerField = soccerField;
+    }
+
     /// <summary>
     /// [Duong] Raised when a normal kick becomes available or unavailable.
     /// </summary>
@@ -31,7 +38,7 @@ public class PlayerKick : MonoBehaviour
 
     public void Kick()
     {
-        if (!SoccerField.Instance.TryGetNearestKickableBall(transform.position, kickRange, out SoccerBall ball))
+        if (!soccerField.TryGetNearestKickableBall(transform.position, kickRange, out SoccerBall ball))
         {
             UpdateNormalKickAvailability(false);
             return;
@@ -45,7 +52,7 @@ public class PlayerKick : MonoBehaviour
     /// </summary>
     public void AutoKick()
     {
-        if (!SoccerField.Instance.TryGetFarthestKickableBall(transform.position, out SoccerBall ball))
+        if (!soccerField.TryGetFarthestKickableBall(transform.position, out SoccerBall ball))
         {
             Debug.Log("No more balls to AutoKick");
             return;
@@ -63,7 +70,7 @@ public class PlayerKick : MonoBehaviour
     /// </summary>
     private void LaunchBallToNearestGoal(SoccerBall ball)
     {
-        Transform nearestGoal = SoccerField.Instance.GetNearestGoal(ball.transform.position);
+        Transform nearestGoal = soccerField.GetNearestGoal(ball.transform.position);
         if (nearestGoal == null)
         {
             Debug.Log("Have no goal to kick to");
@@ -71,7 +78,7 @@ public class PlayerKick : MonoBehaviour
         }
 
         ball.LaunchTo(nearestGoal.position);
-        UpdateNormalKickAvailability(SoccerField.Instance.TryGetNearestKickableBall(transform.position, kickRange, out _));
+        UpdateNormalKickAvailability(soccerField.TryGetNearestKickableBall(transform.position, kickRange, out _));
     }
 
     private void UpdateNormalKickAvailability(bool canKick)

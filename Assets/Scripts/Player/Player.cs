@@ -2,16 +2,18 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-//TODO: think i might make this a prefab, not singleton no more 
 public class Player : MonoBehaviour
 {
-    public static Player Instance { get; private set; }
-
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private PlayerAnimation playerAnimation;
     [SerializeField] private PlayerKick playerKick;
 
     private PlayerInputActions playerInputActions;
+
+    public void InitializePlayer(SoccerField soccerField)
+    {
+        playerKick.InitializePlayerKick(soccerField);
+    }
 
     public bool CanKick => playerKick.CanKick;
 
@@ -33,25 +35,11 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Debug.LogError($"Duplicate {nameof(Player)} detected on {gameObject.name}.", gameObject);
-            enabled = false;
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
         playerInputActions = new PlayerInputActions();
     }
 
     private void OnEnable()
     {
-        if (Instance != this)
-        {
-            return;
-        }
-
         playerMovement.MovementStateChanged += HandleMovementStateChanged;
         playerAnimation.HandleMovementStateChanged(playerMovement.IsMoving);
         playerInputActions.Player.Move.performed += HandlePlayerMoveInput;
@@ -61,11 +49,6 @@ public class Player : MonoBehaviour
 
     private void OnDisable()
     {
-        if (Instance != this)
-        {
-            return;
-        }
-
         playerInputActions.Player.Disable();
         playerMovement.HandlePlayerMoveInput(Vector2.zero);
         playerInputActions.Player.Move.performed -= HandlePlayerMoveInput;
@@ -75,11 +58,7 @@ public class Player : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Instance == this)
-        {
-            playerInputActions.Dispose();
-            Instance = null;
-        }
+        playerInputActions.Dispose();
     }
 
     private void HandlePlayerMoveInput(InputAction.CallbackContext context)

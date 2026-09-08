@@ -2,22 +2,25 @@ using System;
 
 public class PlayerKickPresenter : IDisposable
 {
-    public PlayerKickPresenter()
+    private readonly Player player;
+
+    public PlayerKickPresenter(Player player)
     {
-        HandleKickAvailabilityChanged(Player.Instance.CanKick);
-        Player.Instance.KickAvailabilityChanged += HandleKickAvailabilityChanged;
+        this.player = player;
+        HandleKickAvailabilityChanged(player.CanKick);
+        player.KickAvailabilityChanged += HandleKickAvailabilityChanged;
         UIManager.Instance.KickButtonClicked += HandleKickButtonClicked;
         UIManager.Instance.AutoKickButtonClicked += HandleAutoKickButtonClicked;
     }
 
     public void Dispose()
     {
-        if (Player.Instance != null)
+        player.KickAvailabilityChanged -= HandleKickAvailabilityChanged;
+        if (UIManager.Instance != null)
         {
-            Player.Instance.KickAvailabilityChanged -= HandleKickAvailabilityChanged;
+            UIManager.Instance.KickButtonClicked -= HandleKickButtonClicked;
+            UIManager.Instance.AutoKickButtonClicked -= HandleAutoKickButtonClicked;
         }
-        UIManager.Instance.KickButtonClicked -= HandleKickButtonClicked;
-        UIManager.Instance.AutoKickButtonClicked -= HandleAutoKickButtonClicked;
     }
 
     private void HandleKickAvailabilityChanged(bool canKick)
@@ -34,11 +37,11 @@ public class PlayerKickPresenter : IDisposable
 
     private void HandleKickButtonClicked()
     {
-        Player.Instance.RequestKick();
+        player.RequestKick();
     }
 
     private void HandleAutoKickButtonClicked()
     {
-        Player.Instance.RequestAutoKick();
+        player.RequestAutoKick();
     }
 }

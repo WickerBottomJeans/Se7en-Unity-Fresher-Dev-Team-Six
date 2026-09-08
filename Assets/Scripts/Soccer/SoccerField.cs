@@ -8,29 +8,6 @@ public class SoccerField : MonoBehaviour
     [SerializeField] private SoccerBall[] soccerBalls;
     [SerializeField] private Transform[] goals;
 
-    public static SoccerField Instance { get; private set; }
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Debug.LogError($"Duplicate {nameof(SoccerField)} detected on {gameObject.name}.", gameObject);
-            gameObject.SetActive(false);
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
-
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
-    }
-
     /// <summary>
     /// [Duong] Returns the closest goal marker
     /// </summary>
