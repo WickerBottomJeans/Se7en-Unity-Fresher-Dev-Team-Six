@@ -13,12 +13,20 @@ public partial class UIManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogError($"Duplicate {nameof(UIManager)} detected on {gameObject.name}.", gameObject);
-
+            gameObject.SetActive(false);
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 }
