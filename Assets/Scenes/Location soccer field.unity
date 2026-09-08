@@ -215,6 +215,8 @@ MonoBehaviour:
   player: {fileID: 1348460135}
   soccerField: {fileID: 1639495337}
   cameraController: {fileID: 874298414}
+  singleEffectPlayer: {fileID: 1302989524}
+  gameplayResumeDelay: 2
 --- !u!4 &228208611
 Transform:
   m_ObjectHideFlags: 0
@@ -618,10 +620,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 12, y: 0, z: 0}
-  m_XDamping: 0.2
-  m_YDamping: 0.2
-  m_ZDamping: 0.2
+  m_FollowOffset: {x: 0, y: 20, z: 0}
+  m_XDamping: 0.3
+  m_YDamping: 0.3
+  m_ZDamping: 0.3
   m_AngularDampingMode: 0
   m_PitchDamping: 0
   m_YawDamping: 0
@@ -901,6 +903,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44982e97afc831943a02ab95cf667023, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1302989523
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1302989525}
+  - component: {fileID: 1302989524}
+  m_Layer: 0
+  m_Name: GoalEffectPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1302989524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302989523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c1c18b53cfa1ca4bb721e8dee23f31c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectPrefab: {fileID: 4240034784475640689, guid: 7d05e4127f42c914aa5d5902442e058e, type: 3}
+--- !u!4 &1302989525
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302989523}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.2626753, y: 17.601837, z: 0.26850986}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1323046635 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8168243516794731803, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
@@ -967,14 +1014,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1348460128}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.835817, y: 4.41, z: 0}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 4.61, y: 4.41, z: 0.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1144280703}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &1348460134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1797,3 +1844,4 @@ SceneRoots:
   - {fileID: 1639495334}
   - {fileID: 228208611}
   - {fileID: 121961686}
+  - {fileID: 1302989525}
