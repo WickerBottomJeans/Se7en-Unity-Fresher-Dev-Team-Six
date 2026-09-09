@@ -5,12 +5,13 @@ using UnityEngine;
 /// <summary>
 /// Controls the ball's flight and whether its states
 /// </summary>
-public class SoccerBall : MonoBehaviour
+public class SoccerBall : MonoBehaviour, IPushable
 {
     [SerializeField, Min(0.01f)] private float flightDuration = 1f;
     [SerializeField, Min(0f)] private float arcHeight = 2f;
     [SerializeField] private Transform visualRoot;
     [SerializeField, Min(0f)] private float rotationSpeed = 360f;
+    [SerializeField] private Rigidbody ballRigidbody;
 
     private bool isKickable = true;
     private Tween flightTween;
@@ -53,7 +54,38 @@ public class SoccerBall : MonoBehaviour
 
     public bool IsKickable => isKickable && isActiveAndEnabled;
 
+    /// <summary>
+    /// [Duong] When it reach the goal after being LaunchTo(), NOT when pushed by physics
+    /// </summary>
     public event Action<SoccerBall> DestinationReached;
+
+    /// <summary>
+    /// Pushes an available ball up to the requested speed along a horizontal direction.
+    /// </summary>
+    public void ApplyPush(Vector3 direction, float pushSpeed)
+    {
+        if (!IsKickable || ballRigidbody.isKinematic)
+        {
+            return;
+        }
+
+        direction.y = 0f;
+        if (direction.sqrMagnitude <= Mathf.Epsilon)
+        {
+            return;
+        }
+
+        direction.Normalize();
+
+        // Include pushes queued before the next physics step.
+        Vector3 pendingVelocityChange = ballRigidbody.GetAccumulatedForce() * (Time.fixedDeltaTime / ballRigidbody.mass);
+        float speedAlongDirection = Vector3.Dot(ballRigidbody.velocity + pendingVelocityChange, direction);
+        float speedToAdd = Mathf.Max(0f, pushSpeed - speedAlongDirection);
+        if (speedToAdd > 0f)
+        {
+            ballRigidbody.AddForce(direction * speedToAdd, ForceMode.VelocityChange);
+        }
+    }
 
     /// <summary>
     /// [Duong] Launches the ball along an arc and makes it unavailable for further kicks.
@@ -69,6 +101,13 @@ public class SoccerBall : MonoBehaviour
         Quaternion initialVisualRotation = visualRoot.rotation;
         destinationPosition = destination;
         isKickable = false;
+
+        // Hand ball movement over to the flight tween.
+        ballRigidbody.velocity = Vector3.zero;
+        ballRigidbody.angularVelocity = Vector3.zero;
+        ballRigidbody.isKinematic = true;
+        ballRigidbody.detectCollisions = false;
+
         flightTween = DOTween.Sequence()
             .Append(transform.DOJump(destination, jumpPower: arcHeight, numJumps: 1, duration: flightDuration).SetEase(Ease.Linear))
             .Join(DOTween.To(() => 0f, angle => visualRoot.rotation = Quaternion.AngleAxis(angle, rotationAxis) * initialVisualRotation, rotationSpeed * flightDuration, flightDuration).SetEase(Ease.Linear))

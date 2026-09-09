@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -6,7 +7,60 @@ using UnityEngine;
 public class SoccerField : MonoBehaviour
 {
     [SerializeField] private SoccerBall[] soccerBalls;
-    [SerializeField] private Transform[] goals;
+    [SerializeField] private Goal[] goals;
+
+    #region Unity Lifecycle
+
+    private void Awake()
+    {
+        if (goals == null || goals.Length == 0)
+        {
+            throw new InvalidOperationException("At least one Goal must be assigned to the soccer field.");
+        }
+
+        foreach (Goal goal in goals)
+        {
+            if (goal == null)
+            {
+                throw new InvalidOperationException("Every soccer field Goals entry must reference a Goal.");
+            }
+
+            if (goal.AimTarget == null)
+            {
+                throw new InvalidOperationException("Every soccer field Goal must have an Aim Target assigned.");
+            }
+        }
+    }
+
+    private void OnEnable()
+    {
+        foreach (Goal goal in goals)
+        {
+            goal.BallEnteredGoal += HandleBallEnteredGoal;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (goals == null)
+        {
+            return;
+        }
+
+        foreach (Goal goal in goals)
+        {
+            if (goal != null)
+            {
+                goal.BallEnteredGoal -= HandleBallEnteredGoal;
+            }
+        }
+    }
+
+    #endregion
+
+    #region Public API
+
+    public event Action<SoccerBall> BallEnteredGoal;
 
     /// <summary>
     /// [Duong] Returns the closest goal marker
@@ -22,13 +76,13 @@ public class SoccerField : MonoBehaviour
         Transform nearestGoal = null;
         float nearestSquaredDistance = float.PositiveInfinity;
 
-        foreach (Transform goal in goals)
+        foreach (Goal goal in goals)
         {
-            float squaredDistance = (goal.position - position).sqrMagnitude;
+            float squaredDistance = (goal.AimTarget.position - position).sqrMagnitude;
             if (squaredDistance < nearestSquaredDistance)
             {
                 nearestSquaredDistance = squaredDistance;
-                nearestGoal = goal;
+                nearestGoal = goal.AimTarget;
             }
         }
 
@@ -86,4 +140,15 @@ public class SoccerField : MonoBehaviour
 
         return ball != null;
     }
+
+    #endregion
+
+    #region Private Methods
+
+    private void HandleBallEnteredGoal(SoccerBall ball)
+    {
+        BallEnteredGoal?.Invoke(ball);
+    }
+
+    #endregion
 }

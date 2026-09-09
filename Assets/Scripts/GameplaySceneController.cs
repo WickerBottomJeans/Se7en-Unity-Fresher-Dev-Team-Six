@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,7 +12,11 @@ public class GameplaySceneController : MonoBehaviour
     [SerializeField, Min(0f)] private float gameplayResumeDelay = 2f;
 
     private PlayerKickPresenter playerKickPresenter;
-    private SoccerBall followedBall;
+
+    /// <summary>
+    /// [Duong] The ball that was kicked using kick buttons
+    /// </summary>
+    private SoccerBall buttonKickedBall;
     private Coroutine gameplayResumeCoroutine;
 
     #region Unity Lifecycle
@@ -20,10 +25,8 @@ public class GameplaySceneController : MonoBehaviour
     {
         if (player == null || soccerField == null)
         {
-            Debug.LogError("Player and SoccerField references must be assigned.", this);
-            return;
+            throw new InvalidOperationException("Player and SoccerField references must be assigned.");
         }
-        
         player.InitializePlayer(soccerField);
     }
 
@@ -53,6 +56,8 @@ public class GameplaySceneController : MonoBehaviour
         UIManager.Instance.ShowGamePlayUI();
         playerKickPresenter = new PlayerKickPresenter(player);
         player.BallKicked += HandleBallKicked;
+        soccerField.BallEnteredGoal += HandleBallEnteredGoal;
+
         UIManager.Instance.ResetButtonClicked += HandleResetButtonClicked;
         player.SetPlayerControlsEnabled(true);
     }
@@ -72,10 +77,15 @@ public class GameplaySceneController : MonoBehaviour
 
         player.SetPlayerControlsEnabled(false);
         player.BallKicked -= HandleBallKicked;
-        if (followedBall != null)
+        if (soccerField != null)
         {
-            followedBall.DestinationReached -= HandleBallDestinationReached;
-            followedBall = null;
+            soccerField.BallEnteredGoal -= HandleBallEnteredGoal;
+        }
+
+        if (buttonKickedBall != null)
+        {
+            buttonKickedBall.DestinationReached -= HandleBallDestinationReached;
+            buttonKickedBall = null;
         }
 
         cameraController.SetFollowTarget(null);
@@ -119,16 +129,16 @@ public class GameplaySceneController : MonoBehaviour
         }
 
         //[Duong] Follow the newest ball, which shouldnt happen cuz i unenalbe kicking 
-        if (followedBall != null)
+        if (buttonKickedBall != null)
         {
             Debug.LogWarning("A new ball was kicked before the previous ball reached its destination.", this);
-            followedBall.DestinationReached -= HandleBallDestinationReached;
+            buttonKickedBall.DestinationReached -= HandleBallDestinationReached;
         }
 
-        followedBall = ball;
-        followedBall.DestinationReached += HandleBallDestinationReached;
+        buttonKickedBall = ball;
+        buttonKickedBall.DestinationReached += HandleBallDestinationReached;
         player.SetPlayerControlsEnabled(false);
-        cameraController.SetFollowTarget(followedBall.transform);
+        cameraController.SetFollowTarget(buttonKickedBall.transform);
         UIManager.Instance.HideGamePlayUI();
     }
 
@@ -137,14 +147,30 @@ public class GameplaySceneController : MonoBehaviour
     /// </summary>
     private void HandleBallDestinationReached(SoccerBall ball)
     {
+        CompleteBallGoal(ball);
+    }
+
+    private void HandleBallEnteredGoal(SoccerBall ball)
+    {
+        CompleteBallGoal(ball);
+    }
+
+    /// <summary>
+    /// [Duong] Completes the ball goal sequence, removes the ball, plays the goal effect, and resumes gameplay if this was the button-kicked ball.
+    /// </summary>
+    private void CompleteBallGoal(SoccerBall ball)
+    {
         ball.DestinationReached -= HandleBallDestinationReached;
-        followedBall = null;
-        
+
+        ball.gameObject.SetActive(false);
         singleEffectPlayer.PlayEffect(ball.transform.position);
-        cameraController.SetFollowTarget(null);
         Destroy(ball.gameObject);
-        
-        gameplayResumeCoroutine = StartCoroutine(ResumeGameplayAfterDelay());
+
+        //[Duong] If the ball is kicked by player clicking kick buttons
+        if (buttonKickedBall == ball)
+        {
+            gameplayResumeCoroutine = StartCoroutine(ResumeGameplayAfterDelay());
+        }
     }
 
     /// <summary>
