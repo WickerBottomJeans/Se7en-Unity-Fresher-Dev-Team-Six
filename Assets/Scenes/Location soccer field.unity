@@ -713,11 +713,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
---- !u!4 &963111275 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5379469325358153936, guid: f3059fe87515fa740afe2ac7e9819671, type: 3}
+--- !u!114 &963111279 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5902346158963946260, guid: f3059fe87515fa740afe2ac7e9819671, type: 3}
   m_PrefabInstance: {fileID: 3949143139653623698}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03dcbfa99fb9c34082a88225b06a666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1144280701
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1434,7 +1440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05743d6d6e2b6a74a81398caafd6b649, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pushSpeed: 6
+  pushSpeed: 9
 --- !u!1001 &1457115052
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1508,11 +1514,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
---- !u!4 &1493945304 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5379469326095955536, guid: f3059fe87515fa740afe2ac7e9819671, type: 3}
+--- !u!114 &1493945308 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5902346159970944404, guid: f3059fe87515fa740afe2ac7e9819671, type: 3}
   m_PrefabInstance: {fileID: 3949143139653623698}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03dcbfa99fb9c34082a88225b06a666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1636584739 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8168243516794731803, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
@@ -1575,8 +1587,8 @@ MonoBehaviour:
   - {fileID: 1264080868}
   - {fileID: 1702152440}
   goals:
-  - {fileID: 1493945304}
-  - {fileID: 963111275}
+  - {fileID: 1493945308}
+  - {fileID: 963111279}
 --- !u!114 &1702152440 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8168243516794731803, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}

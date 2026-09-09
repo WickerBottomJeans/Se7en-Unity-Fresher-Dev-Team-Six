@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerPush : MonoBehaviour
 {
-    [SerializeField, Min(0f)] private float pushSpeed = 6f;
+    [SerializeField, Min(0f)] private float pushSpeed = 9f;
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
